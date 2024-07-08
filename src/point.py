@@ -3,51 +3,66 @@ import os
 import tabulate
 
 class StudentPoint:
-    def __init__(self):
-        with open(f'{os.getcwd()}\\src\\point.json') as pj:
-            self.point_dict : dict = json.load(pj)
+    def __init__(self, classroom):
+        self.classroom = classroom
+        self.point_dict = {}
+        self.file_path = os.path.join(os.getcwd(), 'src', 'data', f'point{self.classroom}.json')
+        self.load_data()
 
-    def __write_modified_data(self): #수정된 데이터 저장
-        with open(f'{os.getcwd()}\\src\\point.json', 'w') as pj:
-            json.dump(self.point_dict, pj, indent = 2, ensure_ascii = False)
+    def load_data(self):
+        try:
+            with open(self.file_path, 'r') as pj:
+                self.point_dict = json.load(pj)
+        except FileNotFoundError:
+            print(f"파일을 찾을 수 없습니다: {self.file_path}")
+            self.point_dict = {}
 
-    def __add_point(self, std_name, pnt_to_add): # 포인트 추가
-        #self.point_dict[std_name] += pnt_to_add
-        #self.__write_modified_data()
-        if self.point_dict.get(std_name) == None:
-            self.point_dict[std_name] = pnt_to_add
-        else:
-            self.point_dict[std_name] += pnt_to_add
+    def write_modified_data(self):
+        with open(self.file_path, 'w') as pj:
+            json.dump(self.point_dict, pj, indent=2)
 
-        self.__write_modified_data()
+    def add_point(self, std_name, pnt_to_add):
+        self.point_dict[std_name] = self.point_dict.get(std_name, 0) + pnt_to_add
+        self.write_modified_data()
 
-    def __remove_point(self, std_name, pnt_to_add): #포인트 차감
-        self.point_dict[std_name] += pnt_to_add
-        self.__write_modified_data()
+    def remove_point(self, std_name, pnt_to_remove):
+        self.point_dict[std_name] = self.point_dict.get(std_name, 0) - pnt_to_remove
+        self.write_modified_data()
 
-    def dialog(self): #질문한 후 지정 명령 실행
-        student_name = input('이름: ')
-        point_to_pm = int(input('추가 또는 차감할 포인트: '))
-        what_to_do = input('추가 또는 차감: ')
+    def dialog(self):
+        student_name = input('이름: ').strip()
+        if not student_name:
+            print("올바른 이름을 입력해주세요.")
+            return
+
+        try:
+            point_to_pm = int(input('추가 또는 차감할 포인트: '))
+        except ValueError:
+            print("올바른 숫자를 입력해주세요.")
+            return
+
+        what_to_do = input('추가 또는 차감: ').strip().lower()
         if what_to_do == '추가':
-            self.__add_point(student_name, point_to_pm)
+            self.add_point(student_name, point_to_pm)
         elif what_to_do == '차감':
-            self.__remove_point(student_name, point_to_pm)
+            self.remove_point(student_name, point_to_pm)
+        else:
+            print("'추가' 또는 '차감'만 입력 가능합니다.")
 
-    def print_point(self, sorting): #표 출력
+    def print_point(self, sorting):
         head = ['이름', '포인트']
-    
         if sorting == 'name':
-                sorted_list = sorted(self.point_dict.items())
+            sorted_list = sorted(self.point_dict.items())
         elif sorting == 'point':
-                sorted_list = sorted(self.point_dict.items(), key=lambda x: x[1], reverse=True)
-
+            sorted_list = sorted(self.point_dict.items(), key=lambda x: x[1], reverse=True)
+        else:
+            print("정렬 방식은 'name' 또는 'point'만 가능합니다.")
+            return
         print(tabulate.tabulate(sorted_list, headers=head))
 
-#for debug
-pnt = StudentPoint()
-pnt.dialog()
-pnt.print_point('point')
+
+
+
 
 
 
