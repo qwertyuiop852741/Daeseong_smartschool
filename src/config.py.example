@@ -1,1 +1,3 @@
 CLAUDE_KEY = 'your key here'
+CLASSES: int = 10
+MAX_STUDENTS: int = 35

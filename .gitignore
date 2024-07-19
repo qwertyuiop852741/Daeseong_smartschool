@@ -1,2 +1,5 @@
 src/data
 src/config.py
+env
+src/__pycache__
+
