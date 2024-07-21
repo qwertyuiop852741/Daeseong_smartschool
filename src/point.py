@@ -21,7 +21,11 @@ class StudentPoint:
         c = self.conn.cursor()
         c.execute("INSERT INTO students (name, class) VALUES (?, ?)", (name, class_num))
         self.conn.commit()
-
+    #학생 삭제
+    def delete_student(self, student_id):
+        c = self.conn.cursor()
+        c.execute("DELETE * FROM students WHERE id = ?", (student_id,))
+        self.conn.commit()
     # 포인트 업데이트
     def update_points(self, student_id, points):
         c = self.conn.cursor()

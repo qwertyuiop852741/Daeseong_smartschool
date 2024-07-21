@@ -1,3 +1,4 @@
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt
 import sys
@@ -15,7 +16,8 @@ class MainWindow(QWidget):
         self.initUI()
 
         self.std_point = StudentPoint()
-
+        self.doc_sum = DocumentSummarizer()
+        self.current_summary = 0
         # self.student_points_arr = [] # 학생 포인트 관리 클래스 초기화
         # for i in range(0, config.CLASSES):
         #     self.student_points_arr.append(StudentPoint(i + 1))
@@ -49,7 +51,7 @@ class MainWindow(QWidget):
         self.table.setEditTriggers(QAbstractItemView.EditTriggers.NoEditTriggers)
         self.table.setHorizontalHeaderLabels(['이름', '포인트'])
         point_layout.addWidget(self.table)
-        self.content_stack.addWidget(point_page)
+
 
         self.class_combo = QComboBox()
         for i in range(1, config.CLASSES + 1):
@@ -57,15 +59,46 @@ class MainWindow(QWidget):
 
         self.class_combo.currentIndexChanged.connect(self.generate_table)
         point_layout.addWidget(self.class_combo)
+        self.content_stack.addWidget(point_page)
 
         # 공지사항 페이지 --------------------------------------
         #todo
+        info_page = QWidget()
+        info_layout = QVBoxLayout(info_page)
+
+        add_button = QPushButton("내용 추가")
+        add_button.clicked.connect(self.add_summary)
+        info_layout.addWidget(add_button)
+
+        self.document_text = QTextEdit("Textedit to show\na document", info_page)
+        self.document_text.setAlignment(Qt.AlignCenter)
+        self.document_text.setReadOnly(True)
+        info_layout.addWidget(self.document_text)
+
+        # Navigation buttons
+        nav_layout = QHBoxLayout()
+        self.prev_button = QPushButton("<", self)
+        self.prev_button.clicked.connect(self.increase_summary_index)
+        self.next_button = QPushButton(">", self)
+        self.next_button.clicked.connect(self.decrease_summary_index)
+        nav_layout.addWidget(self.prev_button)
+        nav_layout.addWidget(self.next_button)
+
+        # Date label
+        self.date_label = QLabel("Date of the document", self)
+        self.date_label.setAlignment(Qt.AlignCenter)
+
+        info_layout.addLayout(nav_layout)
+        info_layout.addWidget(self.date_label)
+
+        self.content_stack.addWidget(info_page)
         # --------------------------------------------------
 
 
         main_layout.addWidget(self.content_stack, 2)
 
         self.setLayout(main_layout)
+
 
     def generate_table(self):
             self.update_class()
@@ -84,7 +117,6 @@ class MainWindow(QWidget):
 
     def modify_points(self):
         self.update_class()
-        # current_class = self.student_points_arr[int(self.class_combo.currentIndex())]
         dialog = PointDialog(self)
         if dialog.exec() == QDialog.Accepted:
             inputs = dialog.get_inputs()
@@ -99,15 +131,36 @@ class MainWindow(QWidget):
                 current_id = self.std_point.get_student_id(std_name, self.current_class)
                 self.std_point.update_points(current_id, points_to_modify)
 
-            # if self.std_point.student_exists(current_id):
-            #     self.std_point.update_points(current_id, points_to_modify)
-            # elif self.std_point.student_exists(current_id) == False:
-            #     self.std_point.add_student(std_name, self.current_class)
-            #     self.std_point.update_points(current_id, points_to_modify)
         self.generate_table()
 
     def update_class(self):
         self.current_class = self.class_combo.currentIndex()
+
+    def add_summary(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, "파일 열기", "", "모든 파일 (*);;이미지 파일 (*.jpg, *.png)")
+        if file_name:
+            self.doc_sum.process_image(file_name)
+
+    def update_summary_shown(self):
+        current_summary = self.doc_sum.get_all_summaries()[self.current_summary]
+        self.document_text.setPlainText(current_summary[1])
+        self.date_label.setText(current_summary[0])
+
+    def increase_summary_index(self):
+        if len(self.doc_sum.get_all_summaries()) - 1 <= self.current_summary:
+            self.current_summary = 0
+        else:
+            self.current_summary += 1
+
+        self.update_summary_shown()
+
+    def decrease_summary_index(self):
+        if self.current_summary <= 0:
+            self.current_summary = len(self.doc_sum.get_all_summaries()) - 1
+        else:
+            self.current_summary -= 1
+            
+        self.update_summary_shown()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

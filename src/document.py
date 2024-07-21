@@ -54,7 +54,7 @@ class DocumentSummarizer:
         extracted_text = self.extract_text_from_image(image_path)
         summary = self.summarize_text(extracted_text)
         self.save_summary_to_db(summary)
-        return extracted_text, summary
+        return summary
 
     def init_db(self):
         conn = sqlite3.connect(self.db_name)
@@ -96,10 +96,3 @@ class DocumentSummarizer:
         summaries = cursor.fetchall()
         conn.close()
         return summaries
-
-    def show_documents(self):
-        try:
-            with open(self.json_filename, 'r', encoding='utf-8') as file:
-                doc = json.load(file)
-        except FileNotFoundError:
-            doc = []

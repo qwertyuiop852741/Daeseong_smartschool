@@ -1,4 +1,13 @@
 {
     "python.REPL.enableREPLSmartSend": false,
-    "python.analysis.autoImportCompletions": false
+    "python.analysis.autoImportCompletions": false,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "doc",
+            "database": "${workspaceFolder:Daeseong_smartschool}/src/data/summaries.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
 }
