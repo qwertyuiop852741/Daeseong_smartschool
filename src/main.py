@@ -2,6 +2,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt
 import sys
 
+from sympy import false
+
 from document import DocumentSummarizer
 from point import StudentPoint
 import config
@@ -12,9 +14,11 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.initUI()
 
-        self.student_points_arr = [] # 학생 포인트 관리 클래스 초기화
-        for i in range(0, config.CLASSES):
-            self.student_points_arr.append(StudentPoint(i + 1))
+        self.std_point = StudentPoint()
+
+        # self.student_points_arr = [] # 학생 포인트 관리 클래스 초기화
+        # for i in range(0, config.CLASSES):
+        #     self.student_points_arr.append(StudentPoint(i + 1))
 
     def initUI(self):
         self.setWindowTitle('Daeseong High School')
@@ -64,10 +68,9 @@ class MainWindow(QWidget):
         self.setLayout(main_layout)
 
     def generate_table(self):
-            current_class = self.class_combo.currentIndex()
-            
-            data = self.student_points_arr[current_class].return_point()
-
+            self.update_class()
+            data = self.std_point.get_class_students_points(self.current_class)
+            # data = self.student_points_arr[current_class].return_point()
             self.table.setRowCount(len(data))
 
             for row, (key, value) in enumerate(data.items()):
@@ -80,12 +83,31 @@ class MainWindow(QWidget):
         self.content_stack.setCurrentIndex(index)
 
     def modify_points(self):
-        current_class = self.student_points_arr[int(self.class_combo.currentIndex())]
+        self.update_class()
+        # current_class = self.student_points_arr[int(self.class_combo.currentIndex())]
         dialog = PointDialog(self)
         if dialog.exec() == QDialog.Accepted:
             inputs = dialog.get_inputs()
-            current_class.modify_point(inputs[0], int(inputs[1]))
+            std_name = inputs[0]
+            points_to_modify = inputs[1]
+            current_id = self.std_point.get_student_id(std_name, self.current_class)
+
+            if current_id != None:
+                self.std_point.update_points(current_id, points_to_modify)
+            else:
+                self.std_point.add_student(std_name, self.current_class)
+                current_id = self.std_point.get_student_id(std_name, self.current_class)
+                self.std_point.update_points(current_id, points_to_modify)
+
+            # if self.std_point.student_exists(current_id):
+            #     self.std_point.update_points(current_id, points_to_modify)
+            # elif self.std_point.student_exists(current_id) == False:
+            #     self.std_point.add_student(std_name, self.current_class)
+            #     self.std_point.update_points(current_id, points_to_modify)
         self.generate_table()
+
+    def update_class(self):
+        self.current_class = self.class_combo.currentIndex()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

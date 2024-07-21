@@ -27,4 +27,4 @@ class PointDialog(QDialog):
         layout.addWidget(buttons)
 
     def get_inputs(self):
-        return (self.name_input.text(), self.point_input.text())
+        return (self.name_input.text(), int(self.point_input.text()))
