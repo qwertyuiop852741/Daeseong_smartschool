@@ -8,7 +8,7 @@ class StudentPoint:
         self.point_dict = {}
         # self.file_path = os.path.join(os.getcwd(), 'src', 'data', 'point', f'point{self.classroom}.json')
         # self.load_data()
-        self.conn = sqlite3.connect('point.db')
+        self.conn = sqlite3.connect(os.path.join(os.getcwd(), 'src', 'data', 'point', 'point.db'))
         c = self.conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS students
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
