@@ -1,6 +1,5 @@
 import sqlite3
 import anthropic
-import json
 import config
 from datetime import datetime
 from PIL import Image
@@ -39,7 +38,7 @@ class DocumentSummarizer:
         prompt = f"다음은 학교 문서를 OCR 스캔한 결과인데, 읽기 좋게 내용을 다듬어주세요.:\n\n{text}"
         
         response = self.claude_client.messages.create(
-            model="claude-3-sonnet-20240229",
+            model="claude-3-5-sonnet-20240620",
             max_tokens=1000,
             temperature=0.5,
             system="당신은 문서 스캔 결과를 알아보기 쉽게 다듬는 전문가입니다.",

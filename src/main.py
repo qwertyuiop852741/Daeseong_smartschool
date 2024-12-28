@@ -1,10 +1,12 @@
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import (
+    QWidget, QHBoxLayout, QVBoxLayout, 
+    QStackedWidget, QPushButton, QTableWidget, 
+    QListWidget, QAbstractItemView, QComboBox,
+    QTextEdit, QLabel, QTableWidgetItem, 
+    QDialog, QFileDialog, QApplication)
 from PySide6.QtCore import Qt
 import sys
-
-from sympy import false
-
 from document import DocumentSummarizer
 from point import StudentPoint
 import config
@@ -70,7 +72,7 @@ class MainWindow(QWidget):
         add_button.clicked.connect(self.add_summary)
         info_layout.addWidget(add_button)
 
-        self.document_text = QTextEdit("Textedit to show\na document", info_page)
+        self.document_text = QTextEdit("", info_page)
         self.document_text.setAlignment(Qt.AlignCenter)
         self.document_text.setReadOnly(True)
         info_layout.addWidget(self.document_text)
@@ -92,7 +94,11 @@ class MainWindow(QWidget):
         info_layout.addWidget(self.date_label)
 
         self.content_stack.addWidget(info_page)
-        # --------------------------------------------------
+        # 시간표 페이지--------------------------------------------------
+        timetable_page = QWidget()
+        timetable_layout = QVBoxLayout()
+
+        #-------------------------------------------------------------
 
 
         main_layout.addWidget(self.content_stack, 2)
